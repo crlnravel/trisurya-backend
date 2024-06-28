@@ -1,0 +1,13 @@
+Flask~=3.0.3
+pydantic
+langchain
+openai
+neo4j
+langchain_experimental
+langchain-openai
+python-dotenv
+asyncio
+psycopg2
+transformers
+sentencepiece
+torch
