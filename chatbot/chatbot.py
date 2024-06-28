@@ -45,7 +45,7 @@ class TrisuryaChatbot:
         if not self._response:
             raise Exception("The response is still empty")
 
-        if reverse:
+        if not reverse:
             tl_prompt_format = PromptTemplate.from_template(prompts.LANG_PROMPT)
         else:
             tl_prompt_format = PromptTemplate.from_template(prompts.REV_LANG_PROMPT)
@@ -74,7 +74,7 @@ class TrisuryaChatbot:
         topic = await self.classifier.predict(self._response)
 
         # RAG LAYER
-        if topic == 'law':
+        if topic == 'hukum':
             rag_ans = await self.graph_rag.generate_response(self._response)
         else:
             rag_ans = await self.relational_rag.generate_response(
@@ -101,6 +101,7 @@ class TrisuryaChatbot:
         # BACK TRANSLATION LAYER
         if lang != Bahasa.INDONESIA:
             await self._translate(lang, reverse=True)
+            self._response = self._response.content
 
         if len(rag_ans) == 0:
             self._response += (". \nCatatan: Informasi ini masih perlu dipastikan "
