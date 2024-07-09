@@ -62,13 +62,13 @@ class TrisuryaChatbot:
         # TRANSLATION LAYER
         await self._translate(lang)
 
-        # # SUMMARIZATION LAYER
-        # summary = ''
-        #
-        # if q1 != '' or q2 != '' or q3 != '':
-        #     summary = await self.summarizer.summarize(q1 + q2 + q3)
-        #
-        # self._response = summary + q
+        # SUMMARIZATION LAYER
+        summary = ''
+
+        if q1 != '' or q2 != '' or q3 != '':
+            summary = await self.summarizer.summarize(q1 + q2 + q3)
+
+        self._response = summary + q
 
         # CLASSIFICATION LAYER
         topic = await self.classifier.predict(self._response)
