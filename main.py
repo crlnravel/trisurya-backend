@@ -22,9 +22,14 @@ app.add_middleware(
 )
 
 
-@app.post("/")
+@app.post("/chat")
 async def root(req: Req):
     res = await generate_response(req.query, Bahasa[req.bahasa.upper()])
     return {
         'res': res
     }
+
+@app.get("/tes")
+async def tes():
+    return "Halo, ini dari tes"
+
