@@ -11,6 +11,7 @@ class RAGBase:
             llm: BaseChatModel,
             chain: Chain,
             check_is_rag_prompt: str = prompts.CHECK_IS_RAG_PROMPT,
+            check_is_query_prompt: str = prompts.CHECK_IS_QUERY_PROMPT,
     ):
         """
         Base Trisurya RAG class
@@ -22,6 +23,7 @@ class RAGBase:
         self.llm = llm
         self.chain = chain
         self.check_is_rag_format = PromptTemplate.from_template(template=check_is_rag_prompt)
+        self.check_is_query_format = PromptTemplate.from_template(template=check_is_query_prompt)
 
         self._response = ''
 
@@ -33,14 +35,20 @@ class RAGBase:
         """
 
         # Creating question based on the input result.
-        q = await self.check_is_rag_format.aformat(input=self._response)
+        q_is_rag = await self.check_is_rag_format.aformat(input=self._response)
 
         # Tell the llm to decide whether the result came from the database or not
-        llm_answer = await self.llm.ainvoke(q)
+        llm_answer_is_rag = await self.llm.ainvoke(q_is_rag)
+
+        q_is_query = await self.check_is_query_format.aformat(input=self._response)
+
+        llm_answer_is_query = await self.llm.ainvoke(q_is_query)
 
         confirming_answers = ['yes', 'iya', 'ya', '\nyes', '\niya', '\nya']
+        confirming_in_query = [1, "1"]
 
-        return llm_answer.content.lower() not in confirming_answers
+        return (llm_answer_is_rag.content.lower() not in confirming_answers) and (
+                    llm_answer_is_query.content not in confirming_in_query)
 
     async def generate_response(
             self,
@@ -55,7 +63,6 @@ class RAGBase:
         """
 
         try:
-
             if formatter is None:
                 self._response = await self.chain.ainvoke(input=q)
             else:

@@ -1,4 +1,3 @@
-import time
 from enum import Enum
 
 from langchain_core.language_models import BaseChatModel
@@ -104,7 +103,7 @@ class TrisuryaChatbot:
             self._response = self._response.content
 
         if len(rag_ans) == 0:
-            self._response += (". \nCatatan: Informasi ini masih perlu dipastikan "
+            self._response += ("\nCatatan: Informasi ini masih perlu dipastikan "
                                "kebenarannya karena belum terdaftar di database kami.")
 
         return self._response

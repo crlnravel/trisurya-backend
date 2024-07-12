@@ -175,6 +175,13 @@ LIMIT 1;
 The question: {question}
 """
 
+CHECK_IS_QUERY_PROMPT = """
+You are the best query detector in the world. You can differentiate which text is a query. You are asked to classify the input is a query or not.
+If the input is a query, return 1. However, if not, return 0
+
+Input : {input}
+"""
+
 CHECK_IS_RAG_PROMPT = """
 Apakah respons dalam teks {input} tergolong sebagai pernyataan tidak tahu?
 Jawablah dalam "Ya" atau "Tidak" saja.
