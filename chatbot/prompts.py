@@ -176,10 +176,26 @@ The question: {question}
 """
 
 CHECK_IS_QUERY_PROMPT = """
-You are the best query detector in the world. You can differentiate which text is a query. You are asked to classify the input is a query or not.
-If the input is a query, return 1. However, if not, return 0
+You are the best query classifier in the world. You can differentiate which text is a query. You are asked to classify the input is a query or not.
+If the input is a query, return 1. However, if not, return 0. If you make a mistake, you will be fired and your current good reputation will be removed, so be careful at doing this job.
 
-Input : {input}
+Example of a query input:
+SELECT "estimasi_keberangkatan"
+FROM jadwal_kereta
+WHERE "stasiun_asal" = 'SOLO BALAPAN' AND "stasiun_tujuan" = 'PALUR' AND CAST("estimasi_keberangkatan" AS TIME) > '11:00'
+ORDER BY CAST("estimasi_keberangkatan" AS TIME)
+LIMIT 1;
+
+Another example of a query input:
+SQLQuery: SELECT "kode_kereta" FROM jadwal_kereta WHERE "stasiun_asal" = 'SOLO' AND "stasiun_tujuan" = 'YOGYAKARTA' LIMIT 5;
+
+Example of a non-query input:
+Jadwal keberangkatan paling terakhir dari Bandung ke Surabaya adalah pukul 23.46
+
+Another example of a non-query input:
+Untuk menuju Yogyakarta dari Solo dapat menaiki kereta 109A.
+
+Input: {input}
 """
 
 CHECK_IS_RAG_PROMPT = """

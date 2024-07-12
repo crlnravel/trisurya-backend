@@ -40,12 +40,18 @@ class RAGBase:
         # Tell the llm to decide whether the result came from the database or not
         llm_answer_is_rag = await self.llm.ainvoke(q_is_rag)
 
+        # Creating question based on the input result.
         q_is_query = await self.check_is_query_format.aformat(input=self._response)
 
+        # Check whether the answer is a query or a normal text
         llm_answer_is_query = await self.llm.ainvoke(q_is_query)
 
         confirming_answers = ['yes', 'iya', 'ya', '\nyes', '\niya', '\nya']
         confirming_in_query = [1, "1"]
+
+        print(llm_answer_is_rag)
+        print("#####")
+        print(llm_answer_is_query)
 
         return (llm_answer_is_rag.content.lower() not in confirming_answers) and (
                     llm_answer_is_query.content not in confirming_in_query)
@@ -62,20 +68,18 @@ class RAGBase:
         :return: response from chain if and only if the is_rag returns True, returns empty dict otherwise.
         """
 
-        try:
-            if formatter is None:
-                self._response = await self.chain.ainvoke(input=q)
-            else:
-                formatted_q = await formatter.aformat(question=q)
-                self._response = await self.chain.ainvoke(input=formatted_q)
+        if formatter is None:
+            self._response = await self.chain.ainvoke(input=q)
+        else:
+            formatted_q = await formatter.aformat(question=q)
+            self._response = await self.chain.ainvoke(input=formatted_q)
 
-            if await self._is_rag():
-                return self._response
+        print("#### BEFORE IS_RAG")
 
-            return {}
-
-        except:
-            pass
+        if await self._is_rag():
+            print("#### AFTER IS_RAG")
+            return self._response
+        print("#### AFTER IS_RAG")
 
         return {}
 
