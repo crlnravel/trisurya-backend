@@ -176,26 +176,65 @@ The question: {question}
 """
 
 CHECK_IS_QUERY_PROMPT = """
-You are the best query classifier in the world. You can differentiate which text is a query. You are asked to classify the input is a query or not.
-If the input is a query, return 1. However, if not, return 0. If you make a mistake, you will be fired and your current good reputation will be removed, so be careful at doing this job.
+Determine whether the provided text is a query or not. A query is a statement that requests information from a database, typically involving SQL keywords like SELECT, INSERT, UPDATE, DELETE, JOIN, WITH, or CREATE.
 
-Example of a query input:
-SELECT "estimasi_keberangkatan"
-FROM jadwal_kereta
-WHERE "stasiun_asal" = 'SOLO BALAPAN' AND "stasiun_tujuan" = 'PALUR' AND CAST("estimasi_keberangkatan" AS TIME) > '11:00'
-ORDER BY CAST("estimasi_keberangkatan" AS TIME)
-LIMIT 1;
+Instructions: For each text, return 1 if it is a query and 0 if it is not.
 
-Another example of a query input:
-SQLQuery: SELECT "kode_kereta" FROM jadwal_kereta WHERE "stasiun_asal" = 'SOLO' AND "stasiun_tujuan" = 'YOGYAKARTA' LIMIT 5;
+Examples:
 
-Example of a non-query input:
-Jadwal keberangkatan paling terakhir dari Bandung ke Surabaya adalah pukul 23.46
+Text: SELECT e.name, d.department_name, COUNT(p.project_id) AS project_count FROM employees e JOIN departments d ON e.department_id = d.department_id LEFT JOIN projects p ON e.employee_id = p.employee_id GROUP BY e.name, d.department_name HAVING COUNT(p.project_id) > 5 ORDER BY project_count DESC;
+Answer: 1
 
-Another example of a non-query input:
-Untuk menuju Yogyakarta dari Solo dapat menaiki kereta 109A.
+Text: UPDATE customers SET status = 'Inactive' WHERE last_purchase_date < NOW() - INTERVAL '1 year' AND status = 'Active';
+Answer: 1
 
-Input: {input}
+Text: Can you update me on the latest changes in the project?
+Answer: 0
+
+Text: INSERT INTO orders (order_id, customer_id, order_date, total_amount) VALUES (DEFAULT, 789, '2024-07-20', 150.75) RETURNING order_id;
+Answer: 1
+
+Text: WITH monthly_sales AS (SELECT product_id, SUM(amount) AS total_sales FROM sales WHERE sale_date BETWEEN '2024-01-01' AND '2024-06-30' GROUP BY product_id) SELECT p.product_name, ms.total_sales FROM products p JOIN monthly_sales ms ON p.product_id = ms.product_id WHERE ms.total_sales > 1000;
+Answer: 1
+
+Text: Please let me know the status of the current project.
+Answer: 0
+
+Text: CREATE INDEX idx_customer_name ON customers (name);
+Answer: 1
+
+Text: ALTER TABLE orders DROP COLUMN discount;
+Answer: 1
+
+Text: SELECT a.author_name, COUNT(b.book_id) AS number_of_books FROM authors a JOIN books b ON a.author_id = b.author_id GROUP BY a.author_name HAVING COUNT(b.book_id) > 10 ORDER BY number_of_books DESC;
+Answer: 1
+
+Text: SELECT employee_id, AVG(salary) OVER (PARTITION BY department_id) AS avg_department_salary FROM employees;
+Answer: 1
+
+Text: DROP TABLE IF EXISTS temp_data;
+Answer: 1
+
+Text: I need to know if the new policy has been implemented.
+Answer: 0
+
+Text: MERGE INTO employees AS e USING (SELECT id, name FROM new_employees) AS ne ON e.id = ne.id WHEN MATCHED THEN UPDATE SET e.name = ne.name WHEN NOT MATCHED THEN INSERT (id, name) VALUES (ne.id, ne.name);
+Answer: 1
+
+Text: SELECT department_id, MAX(salary) FROM employees GROUP BY department_id HAVING MAX(salary) < 60000;
+Answer: 1
+
+Text: List all managers whose performance review score is above 90 and who have managed more than 3 projects in the last year.
+Answer: 0
+
+Text: WITH sales_summary AS (SELECT employee_id, SUM(sales_amount) AS total_sales FROM sales WHERE sale_date >= '2024-01-01' GROUP BY employee_id) SELECT e.name, s.total_sales FROM employees e JOIN sales_summary s ON e.employee_id = s.employee_id WHERE s.total_sales > 5000;
+Answer: 1
+
+Text: TRUNCATE TABLE old_logs;
+Answer: 1
+
+Text: {input}
+Answer:
 """
 
 CHECK_IS_RAG_PROMPT = """
