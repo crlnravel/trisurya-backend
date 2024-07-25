@@ -14,7 +14,7 @@ from chatbot.rags import Neo4jRAG, PostgreRAG
 from chatbot.summarizers import T5Summarizer
 from config import Config
 
-llm = ChatOpenAI(api_key=Config.OPENAI_KEY, temperature=0, model="gpt-4-1106-preview")
+llm = ChatOpenAI(api_key=Config.OPENAI_KEY, temperature=0, model="gpt-4o-mini")
 rel_db = SQLDatabase.from_uri(Config.POSTGRE_URL)
 
 CYPHER_GENERATION_PROMPT = PromptTemplate(
