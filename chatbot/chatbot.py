@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 
 from langchain_core.language_models import BaseChatModel
@@ -38,6 +39,21 @@ class TrisuryaChatbot:
         self._progress = 0
         self._process_txt = ""
         self._progress_bar = None
+    
+    def _extract_real_ans(self, q):
+        pattern = r'<Jawaban:>\s*(.*)'
+        match = re.search(pattern, q, re.DOTALL)
+        if match:
+            return match.group(1)
+        return q
+
+    def _extract_translation(self, q):
+        pattern = r'<TERJEMAHAN DARI PERTANYAAN>\s*(.*)'
+        match = re.search(pattern, q, re.DOTALL)
+
+        if match:
+            return match.group(1)
+        return q
 
     async def _translate(self, lang: Bahasa, reverse=False):
 
@@ -51,7 +67,9 @@ class TrisuryaChatbot:
 
         tl_prompt = await tl_prompt_format.aformat(input=self._response, lang=lang.value)
 
-        self._response = await self.llm.ainvoke(tl_prompt)
+        tl_result = await self.llm.ainvoke(tl_prompt)
+
+        self._response = self._extract_translation(tl_result.content)
 
     async def generate(self, q, lang: Bahasa, q1: str = '', q2: str = '', q3: str = ''):
 
@@ -100,7 +118,9 @@ class TrisuryaChatbot:
         # BACK TRANSLATION LAYER
         if lang != Bahasa.INDONESIA:
             await self._translate(lang, reverse=True)
-            self._response = self._response.content
+            self._response = self._response
+
+        self._response = self._extract_real_ans(self._response)
 
         if len(rag_ans) == 0:
             self._response += ("\nCatatan: Informasi ini masih perlu dipastikan "
