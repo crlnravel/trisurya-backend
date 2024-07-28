@@ -8,7 +8,8 @@ WORKERS=3
 WORKER_CLASS=uvicorn.workers.UvicornWorker
 VENV=$DIR/.venv/bin/activate
 BIND=unix:$DIR/run/gunicorn.sock
-LOG_LEVEL=error
+LOG_LEVEL=debug
+LOG_FILE=$DIR/logs/app.log
 
 cd $DIR
 source $VENV
@@ -21,4 +22,4 @@ exec gunicorn main:app \
   --group=$GROUP \
   --bind=$BIND \
   --log-level=$LOG_LEVEL \
-  --log-file=-
+  --log-file=$LOG_FILE

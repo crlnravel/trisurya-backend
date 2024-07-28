@@ -39,14 +39,13 @@ class TrisuryaChatbot:
         self._progress = 0
         self._process_txt = ""
         self._progress_bar = None
-    
+
     def _extract_real_ans(self, q):
-        pattern = r'<Jawaban:>\s*(.*)'
+        pattern = r'Jawaban:\s*(.*)'
         match = re.search(pattern, q, re.DOTALL)
         if match:
             return match.group(1)
-        return q
-
+        return q
     def _extract_translation(self, q):
         pattern = r'<TERJEMAHAN DARI PERTANYAAN>\s*(.*)'
         match = re.search(pattern, q, re.DOTALL)
